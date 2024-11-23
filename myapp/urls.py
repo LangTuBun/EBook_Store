@@ -5,4 +5,5 @@ urlpatterns =[
     path('',views.home , name='test-home'),
     path('order/', BookListView.as_view(), name='test-order'),
     path('order/<int:pk>/', BookDetailView.as_view(), name='book-detail'),
+    path('employee/', views.employee, name='employee-home'),
 ]

@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     "myapp",
     "user.apps.UserConfig",
     "crispy_forms",
-    "crispy_bootstrap5"
+    "crispy_bootstrap5",
 ]
 
 MIDDLEWARE = [
@@ -53,6 +53,11 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+AUTHENTICATION_BACKENDS = [
+    'myapp.backends.CustomRoleBackend',
+    'django.contrib.auth.backends.ModelBackend'    
+    ] # Add the custom authentication backend
+
 
 ROOT_URLCONF = 'demo.urls'
 

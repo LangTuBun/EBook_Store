@@ -13,7 +13,8 @@ def home(request):
 
     return render(request, 'myapp/home.html')
 
-
+def employee(request):
+    return render(request, 'myapp/employee_home.html')
 
     
     
