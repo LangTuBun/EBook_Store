@@ -30,3 +30,4 @@ urlpatterns = [
     path('profile/', user_views.profile, name='profile'),
 ]  + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) #this is used to serve media files during development
 
+    

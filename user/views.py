@@ -68,6 +68,5 @@ def login_view(request):
 
 @login_required
 def profile(request):
-
     return render(request, 'user/profile.html')
 
