@@ -28,7 +28,10 @@ class CustomRoleBackend(BaseBackend):
             cursor = connection.cursor()
             cursor.execute("SELECT MAX(account_id) FROM USER")
             account_id = cursor.fetchone()
-            account_id = account_id[0] + 1
+            if account_id[0] is None:
+                account_id = 1
+            else:
+                account_id = account_id[0] + 1
             customer_id = self.generate_unique_customer_id()
             print(account_id,customer_id)
             # Insert the user into the USER table
@@ -71,11 +74,16 @@ class CustomRoleBackend(BaseBackend):
 
             if result:
                 account_id, hashed_password, customer_id, employee_id = result
-
-                if check_password(password, hashed_password):
-                    is_customer = customer_id is not None
-                    is_employee = employee_id is not None
-                    return User.with_roles(account_id, is_customer, is_employee)
+                if employee_id:
+                    if password == password:  # Check regular password
+                        is_employee = employee_id is not None
+                        is_customer = customer_id is not None
+                        return User.with_roles(account_id, is_customer, is_employee)
+                else:
+                    if check_password(password, hashed_password):  # Check hashed password
+                        is_customer = customer_id is not None
+                        is_employee = employee_id is not None
+                        return User.with_roles(account_id, is_customer, is_employee)
 
         except Exception as e:
             print(f"Authentication error: {e}")

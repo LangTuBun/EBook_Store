@@ -5,7 +5,10 @@
 #   * Make sure each ForeignKey and OneToOneField has `on_delete` set to the desired behavior
 #   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
-from django.db import models, connection
+from django.db import models
+
+
+
 
 class Author(models.Model):
     author_id = models.IntegerField(db_column='Author_id', primary_key=True)  # Field name made lowercase.
@@ -25,43 +28,23 @@ class Book(models.Model):
     availability_status = models.CharField(db_column='Availability_Status', max_length=20, blank=True, null=True)  # Field name made lowercase.
     publisher = models.ForeignKey('Publisher', models.DO_NOTHING, db_column='Publisher_id', blank=True, null=True)  # Field name made lowercase.
     author = models.ForeignKey(Author, models.DO_NOTHING, db_column='Author_ID', blank=True, null=True)  # Field name made lowercase.
-    category = models.ForeignKey('Category', models.DO_NOTHING, db_column='Category_id', blank=True, null=True)  # Field name made lowercase.
+    category_id = models.CharField(db_column='Category_id', max_length=20, blank=True, null=True)  # Field name made lowercase.
     amount = models.IntegerField(db_column='Amount', blank=True, null=True)  # Field name made lowercase.
-    publishdate = models.DateField(db_column='PublishDate', blank=True, null=True)  # Field name made lowercase.
-    def __str__(self):
-        return self.title
+    publishdate = models.DateTimeField(db_column='PublishDate', blank=True, null=True)  # Field name made lowercase.
+    img_url = models.CharField(max_length=255, blank=True, null=True)
+
     class Meta:
         managed = False
         db_table = 'book'
 
-class BookAuthor(models.Model):
-    book = models.OneToOneField(Book, models.DO_NOTHING, db_column='Book_id', primary_key=True)  # Field name made lowercase. The composite primary key (Book_id, Author_id) found, that is not supported. The first column is selected.
-    author = models.ForeignKey(Author, models.DO_NOTHING, db_column='Author_id')  # Field name made lowercase.
+
+class BookCoupon(models.Model):
+    book = models.ForeignKey(Book, models.DO_NOTHING)
+    coupon_code = models.CharField(primary_key=True, max_length=20)
 
     class Meta:
         managed = False
-        db_table = 'book_author'
-        unique_together = (('book', 'author'),)
-
-
-class BookCategory(models.Model):
-    book = models.OneToOneField(Book, models.DO_NOTHING, db_column='Book_id', primary_key=True)  # Field name made lowercase. The composite primary key (Book_id, Category_id) found, that is not supported. The first column is selected.
-    category = models.ForeignKey('Category', models.DO_NOTHING, db_column='Category_id')  # Field name made lowercase.
-
-    class Meta:
-        managed = False
-        db_table = 'book_category'
-        unique_together = (('book', 'category'),)
-
-
-class BookDiscount(models.Model):
-    discount_id = models.IntegerField(db_column='Discount_id', primary_key=True)  # Field name made lowercase.
-    book = models.ForeignKey(Book, models.DO_NOTHING, db_column='Book_id', blank=True, null=True)  # Field name made lowercase.
-    discount = models.DecimalField(db_column='Discount', max_digits=5, decimal_places=2, blank=True, null=True)  # Field name made lowercase.
-
-    class Meta:
-        managed = False
-        db_table = 'book_discount'
+        db_table = 'book_coupon'
 
 
 class Category(models.Model):
@@ -74,6 +57,16 @@ class Category(models.Model):
         db_table = 'category'
 
 
+class Coupon(models.Model):
+    coupon_code = models.CharField(primary_key=True, max_length=20)
+    discount_percentage = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
+    valid_until = models.DateField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'coupon'
+
+
 class Customer(models.Model):
     customer_id = models.IntegerField(db_column='Customer_id', primary_key=True)  # Field name made lowercase.
     account = models.ForeignKey('User', models.DO_NOTHING, db_column='Account_id', blank=True, null=True)  # Field name made lowercase.
@@ -84,44 +77,17 @@ class Customer(models.Model):
         db_table = 'customer'
 
 
-class CustomerDiscount(models.Model):
-    discount_id = models.IntegerField(db_column='Discount_id', primary_key=True)  # Field name made lowercase.
-    customer = models.ForeignKey(Customer, models.DO_NOTHING, db_column='Customer_id', blank=True, null=True)  # Field name made lowercase.
-    discount = models.CharField(db_column='Discount', max_length=50, blank=True, null=True)  # Field name made lowercase.
+class CustomerCoupon(models.Model):
+    customer = models.OneToOneField(Customer, models.DO_NOTHING, primary_key=True)  # The composite primary key (customer_id, coupon_code) found, that is not supported. The first column is selected.
+    coupon_code = models.ForeignKey(BookCoupon, models.DO_NOTHING, db_column='coupon_code')
+    redeem_date = models.DateField(blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'customer_discount'
-
-class DjangoContentType(models.Model):
-    app_label = models.CharField(max_length=100)
-    model = models.CharField(max_length=100)
-
-    class Meta:
-        managed = False
-        db_table = 'django_content_type'
-        unique_together = (('app_label', 'model'),)
+        db_table = 'customer_coupon'
+        unique_together = (('customer', 'coupon_code'),)
 
 
-class DjangoMigrations(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    app = models.CharField(max_length=255)
-    name = models.CharField(max_length=255)
-    applied = models.DateTimeField()
-
-    class Meta:
-        managed = False
-        db_table = 'django_migrations'
-
-
-class DjangoSession(models.Model):
-    session_key = models.CharField(primary_key=True, max_length=40)
-    session_data = models.TextField()
-    expire_date = models.DateTimeField()
-
-    class Meta:
-        managed = False
-        db_table = 'django_session'
 
 
 class Employee(models.Model):
@@ -173,7 +139,7 @@ class Payments(models.Model):
 
 
 class Publisher(models.Model):
-    publisher_id = models.AutoField(db_column='Publisher_id', primary_key=True)  # Field name made lowercase.
+    publisher_id = models.IntegerField(db_column='Publisher_id', primary_key=True)  # Field name made lowercase.
     name = models.CharField(db_column='Name', max_length=100)  # Field name made lowercase.
     address = models.TextField(db_column='Address', blank=True, null=True)  # Field name made lowercase.
     contact_info = models.TextField(db_column='Contact_info', blank=True, null=True)  # Field name made lowercase.
@@ -184,11 +150,9 @@ class Publisher(models.Model):
 
 
 class Reviews(models.Model):
-    review_id = models.AutoField(db_column='Review_id', primary_key=True)  # Field name made lowercase.
-    book = models.ForeignKey(Book, models.DO_NOTHING,related_name= 'reviews' ,db_column='Book_id', blank=True, null=True)  # Field name made lowercase.
-    customer = models.ForeignKey(Customer, models.DO_NOTHING, db_column='Customer_id', blank=True, null=True)  # Field name made lowercase.
-    rating = models.IntegerField(db_column='Rating', blank=True, null=True)  # Field name made lowercase.
-    review_date = models.DateField(db_column='Review_date', blank=True, null=True)  # Field name made lowercase.
+    review_id = models.IntegerField(db_column='Review_id', primary_key=True)  # Field name made lowercase.
+    book = models.ForeignKey(Book, models.DO_NOTHING, db_column='Book_id', blank=True, null=True)  # Field name made lowercase.
+    rating = models.FloatField(db_column='Rating', blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
         managed = False
@@ -203,34 +167,28 @@ class User(models.Model):
     address = models.TextField(db_column='Address', blank=True, null=True)  # Field name made lowercase.
     password = models.CharField(db_column='Password', max_length=255)  # Field name made lowercase.
     registered_date = models.DateField(db_column='Registered_date', blank=True, null=True)  # Field name made lowercase.
-    from_employee = models.IntegerField(blank=True, null=True, default= 0)  # Field name made lowercase.
-    def is_employee(self):
-        return self.from_employee == 1 #add a method to check if the user is an employee
-    def is_customer(self):
-        return self.from_employee == 0
-    # def get_customer_id(self):
-    #     if self.is_customer():
-    #         try:
-    #             return Customer.objects.get(account_id=self.account_id).customer_id
-    #         except Customer.DoesNotExist:
-    #             return None
-    #     return None
-    # def get_customer_info(self):
-    #     if not self.is_customer():
-    #         return None
+    from_employee = models.IntegerField(blank=True, null=True)
 
-    #     with connection.cursor() as cursor:
-    #         cursor.execute("""
-    #             SELECT c.customer_id
-    #             FROM CUSTOMER c
-    #             WHERE c.account_id = %s
-    #         """, [self.account_id])
-    #         return cursor.fetchone()
-    
+    class Meta:
+        managed = False
+        db_table = 'user'
+        
+    @property
+    def is_authenticated(self):
+        # Since you're using a custom authentication backend,
+        # you can define your own logic for authentication
+        return self.account_id is not None
     @classmethod
     def with_roles(cls, account_id, is_customer, is_employee):
         user = cls.objects.get(account_id=account_id)
         return user
+
+
+class UserProfile(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    image = models.CharField(max_length=100)
+    user = models.OneToOneField(User, models.DO_NOTHING)
+
     class Meta:
         managed = False
-        db_table = 'user'
+        db_table = 'user_profile'

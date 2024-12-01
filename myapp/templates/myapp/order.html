@@ -1,24 +1,33 @@
 {% extends "myapp/base.html" %}
 {% block content %}
-{%for book in books%}
-<article class="media content-section">
+{% for book in books %}
+<article class="media content-section" style="display: flex; align-items: flex-start; gap: 15px;">
+    <!-- Book Image Section -->
+    <div class="book-image">
+        {% if book.img_url %}
+            <img src="{{ book.img_url }}" alt="{{ book.title }} Cover" style="max-width: 150px; height: auto; border: 1px solid #ccc; border-radius: 5px;">
+        {% else %}
+            <p>No image available.</p>
+        {% endif %}
+    </div>
+
+    <!-- Book Details Section -->
     <div class="media-body">
-      <div class="article-metadata">
-        <a class="mr-2" href="#">{{ book.author.name }}</a>
-        <small class="text-muted">{{ book.publishdate }}</small>
-      </div>
-      <h2><a class="article-title" href="{% url 'book-detail' book.book_id %}">{{ book.title }}</a></h2>
-      <p class="article-content">{{ book.review }}</p>
-      <div class="reviews">
-        <h3>Reviews:</h3>
-        {% for review in book.reviews.all %}
-          <p>{{ review.rating }}</p>
-          <small class="text-muted">Reviewed on {{ review.review_date }}</small>
-        {% empty %}
-          <p>No reviews yet.</p>
-        {% endfor %}
-      </div>
-    </div>  
-  </article>
-{%endfor%}
+        <div class="article-metadata">
+            <a class="mr-2" href="#">{{ book.author.name }}</a>
+            <small class="text-muted">{{ book.publishdate }}</small>
+        </div>
+        <h2><a class="article-title" href="{% url 'book-detail' book.book_id %}">{{ book.title }}</a></h2>
+        <div class="reviews">
+            <h3>Reviews:</h3>
+            {% for review in book.reviews_set.all %}
+                <p><strong>Rating:</strong> {{ review.rating }}</p>
+                <p>{{ review.comment }}</p>
+            {% empty %}
+                <p>No reviews yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+</article>
+{% endfor %}
 {% endblock %}

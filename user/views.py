@@ -2,12 +2,12 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.views import LoginView
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .models import Profile
+# from .models import Profile
 from myapp.models import User, Customer 
 from django.db import connection
 from .forms import RegistrationForm, LoginForm
 from myapp.backends  import CustomRoleBackend
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, login
 
 
 def register(request):
@@ -19,7 +19,7 @@ def register(request):
             last_name = form.cleaned_data['last_name']
             address = form.cleaned_data['address']
             password = form.cleaned_data['password']
-            registered_date = '2024-11-22' # Set the registered_date to a future date
+            registered_date = '2025-11-23' # Set the registered_date to a future date
             
             # Call the add_user method from the custom backend
             custom_backend = CustomRoleBackend()
@@ -54,10 +54,10 @@ def login_view(request):
             
             if user is not None:
                 messages.success(request, "Login successful")
-                if user.is_employee:
+                if user.from_employee:
                     return redirect('employee-home')
                 else:
-                    return redirect('test-home')
+                    return redirect('user-home')
             else:
                 messages.error(request, "Invalid username or password")
         else:

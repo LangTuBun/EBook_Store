@@ -52,6 +52,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'user.context_processor.CustomAuthenticationMiddleware',
+    # Add the custom context processor
 ]
 AUTHENTICATION_BACKENDS = [
     'myapp.backends.CustomRoleBackend',
@@ -72,6 +74,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'user.context_processor.custom_user_context',  # Add the custom context processor
             ],
         },
     },
@@ -105,6 +108,7 @@ DATABASES = {
         }
     }
 }
+# AUTH_USER_MODEL = 'myapp.User'  # Set the custom user model
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
