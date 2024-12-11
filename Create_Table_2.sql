@@ -30,7 +30,8 @@ CREATE TABLE Book (
     Author_ID INT,
     Category_id VARCHAR(20),
     Amount INT,
-    PublishDate INT,
+    PublishDate date,
+	img_url VARCHAR(255),
     FOREIGN KEY (Publisher_id) REFERENCES Publisher(Publisher_id),
     FOREIGN KEY (Author_ID) REFERENCES Author(Author_ID)
 );
