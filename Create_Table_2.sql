@@ -132,4 +132,79 @@ CREATE TABLE Payments (
     FOREIGN KEY (Order_id) REFERENCES Orders(Order_id) ON DELETE CASCADE
 );
 
+-- Function: Calculate the total price.
+DELIMITER //
 
+CREATE FUNCTION GetTotalOrderPrice(orderId INT)
+RETURNS DECIMAL(10,2)
+DETERMINISTIC
+BEGIN
+    DECLARE total_price DECIMAL(10,2);
+    SELECT SUM(Quantity * Price_each)
+    INTO total_price
+    FROM Order_Detail
+    WHERE Order_id = orderId;
+    RETURN IFNULL(total_price, 0);
+END;
+//
+
+DELIMITER ;
+
+-- Procedures: Add a newbook.
+DELIMITER //
+
+CREATE PROCEDURE AddBook(
+    IN p_title VARCHAR(255),
+    IN p_price DECIMAL(10,2),
+    IN p_language VARCHAR(50),
+    IN p_publisher_id INT,
+    IN p_author_id INT,
+    IN p_category_id INT,
+    IN p_amount INT,
+    IN p_publish_date INT
+)
+BEGIN
+    INSERT INTO Book (Title, Price, Language, Publisher_id, Author_ID, Category_id, Amount, PublishDate)
+    VALUES (p_title, p_price, p_language, p_publisher_id, p_author_id, p_category_id, p_amount, p_publish_date);
+END;
+//
+
+DELIMITER ;
+
+-- Update book availability
+
+DELIMITER //
+
+CREATE TRIGGER UpdateBookAvailability
+AFTER UPDATE ON Book
+FOR EACH ROW
+BEGIN
+    IF NEW.Amount <= 0 THEN
+        UPDATE Book
+        SET Availability_Status = 'Out of Stock'
+        WHERE Book_id = NEW.Book_id;
+    ELSE
+        UPDATE Book
+        SET Availability_Status = 'Available'
+        WHERE Book_id = NEW.Book_id;
+    END IF;
+END;
+//
+
+DELIMITER ;
+
+-- get the redem date of the coupon when a customer redeems it.
+
+DELIMITER //
+
+CREATE TRIGGER LogCouponRedemption
+AFTER INSERT ON customer_coupon
+FOR EACH ROW
+BEGIN
+    UPDATE customer_coupon
+    SET redeem_date = CURDATE()
+    WHERE customer_id = NEW.customer_id AND coupon_code = NEW.coupon_code;
+END;
+//
+
+DELIMITER ;
