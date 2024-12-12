@@ -1,7 +1,7 @@
 from django.contrib.auth.backends import BaseBackend
 from myapp.models import User, Customer, Employee
 from django.contrib.auth.hashers import check_password, make_password
-from django.db import IntegrityError, transaction
+from django.db import IntegrityError, transaction, Error
 from django.db import connection
 import random
 import logging
@@ -35,13 +35,16 @@ class CustomRoleBackend(BaseBackend):
             customer_id = self.generate_unique_customer_id()
             print(account_id,customer_id)
             # Insert the user into the USER table
-            with connection.cursor() as cursor:
-                cursor.execute(
-                    """
-                    INSERT INTO USER (account_id, user_name, first_name, last_name, address, password, registered_date)
-                    VALUES (%s,%s, %s, %s, %s, %s, %s)
-                    """, [account_id,user_name, first_name, last_name, address, hashed_password, registered_date]
-                )
+            try:
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        """
+                        INSERT INTO USER (account_id, user_name, first_name, last_name, address, password, registered_date)
+                        VALUES (%s,%s, %s, %s, %s, %s, %s)
+                        """, [account_id,user_name, first_name, last_name, address, hashed_password, registered_date]
+                    )
+            except Error as e:
+                print(f"Error: {e}")
                 # Get the auto-generated account_id
             # Insert into the Customer or Employee table based on the `is_employee` flag
             with connection.cursor() as cursor:

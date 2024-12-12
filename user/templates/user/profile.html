@@ -1,17 +1,77 @@
-{% extends "myapp/base.html" %}
-{% comment %} {% load crispy_forms_tags %} {% endcomment %}
+{% extends "myapp/user_home.html" %}
+{% load static %}
 {% block content %}
-<div class="content-section">
-    <div class="media">
-      <img class="rounded-circle account-img" src="{{user.profile.image.url}}">
-      <div class="media-body">
-        <h2 class="account-heading">{{user.username}}</h2>
+<style>
+  .zoom-image {
+      transition: transform 0.3s ease; /* Smooth transition */
+      cursor: pointer; /* Change cursor to a pointer when hovered */
+  }
 
-        <p class="text-secondary">{{user.email}}</p>
-      </div>
+  .zoom-image:hover {
+      transform: scale(1.2); /* Zoom in by 20% */
+  }
+
+  /* Ensure the card and card body have black text */
+  .card, .card-body {
+      background-color: #fff; /* White background for the card */
+      color: #000; /* Set text color to black */
+  }
+
+  /* Profile container text */
+  .cart-container .card-text,
+  .cart-container .card-title {
+      color: #000; /* Set the text color to black */
+  }
+
+  /* Optional: Set color for the headings */
+  .card-title {
+      color: #000; /* Set card title color */
+  }
+
+  .card-subtitle {
+      color: #555; /* Set subtitle color */
+  }
+</style>
+
+<div class="container my-4">
+    <div class="row justify-content-center">
+        <!-- Profile Picture -->
+        <div class="col-md-4 text-center">
+            <div class="profile-img">
+                <img 
+                    class="rounded-circle img-thumbnail shadow-sm" 
+                    src="{% static 'myapp/avatar.jpg' %}" 
+                    alt="Profile Picture"
+                    style="width: 150px; height: 150px;"
+                >
+            </div>
+        </div>
+
+        <!-- User Info -->
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h3 class="card-title text-center">{{ user.user_name }}</h3>
+                    <hr>
+                    
+                    <!-- Profile Details -->
+                    <dl class="row">
+                        <dt class="col-sm-4">Username</dt>
+                        <dd class="col-sm-8">{{ user.user_name }}</dd>
+
+                        <dt class="col-sm-4">Addres</dt>
+                        <dd class="col-sm-8">{{ user.address }}</dd>
+
+                        <dt class="col-sm-4">Bio</dt>
+                        <dd class="col-sm-8">Skibidi</dd>
+
+                    </dl>
+                  
+                </div>
+            </div>
+        </div>
     </div>
-    <!-- FORM HERE -->
-  </div>
-  
-        
-{% endblock content %}
+</div>
+
+
+{% endblock %}

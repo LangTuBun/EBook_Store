@@ -1,0 +1,102 @@
+{% extends "myapp/user_home.html" %}
+{% load static %}
+
+
+{% block content %}
+<style>
+    .zoom-image {
+        transition: transform 0.3s ease; /* Smooth transition */
+        cursor: pointer; /* Change cursor to a pointer when hovered */
+    }
+
+    .zoom-image:hover {
+        transform: scale(1.2); /* Zoom in by 20% */
+    }
+
+    .card {
+        background-color: #fff; /* White background for the card */
+    }
+    .card-body {
+        background-color: #fff; /* Ensure card content has a white background */
+    }
+    .cart-container .card-text {
+        color: #000; /* Set the text color to black */
+    }
+    .cart-container .card-title {
+        color: #000; /* Set the text color to black */
+    }
+</style>
+<div class="cart-container">
+    <h1 class="mb-4">Your Shopping Cart</h1>
+    
+    {% if cart_items %}
+        <div class="cart-items">
+            {% for item in cart_items %}
+                <div class="card mb-3">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="cart-item-image mr-4"> <!-- Adjusted margin here -->
+                            {% if item.book_id.img_url %}
+                                <img 
+                                    src="{{ item.book_id.img_url }}" 
+                                    alt="{{ item.book_id.title }} Cover" 
+                                    class="img-fluid rounded-start zoom-image"
+                                    style="max-width: 150px; max-height: 150px;"
+                                >
+                            {% else %}
+                                <div class="bg-light d-flex align-items-center justify-content-center h-100 p-3">
+                                    <p class="text-muted m-0">No image available</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="cart-item-details">
+                            <h5 class="card-title mb-2 mt-3">{{ item.book_id.title }}</h5> <!-- Added margin top -->
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    Author: {{ item.book_id.author }}
+                                </small>
+                            </p>
+                            <p class="card-text">
+                                Price: ${{ item.book_id.price|floatformat:2 }}
+                            </p>
+                            <p class="card-text">
+                                Quantity: {{ item.quantity }}
+                            </p>
+                        </div>
+                        <div class="cart-item-actions ml-auto">
+                            <form method="post" action="{% url 'remove_from_cart' item.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="fas fa-trash-alt"></i> Remove
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="cart-summary mt-4">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Cart Summary</h4>
+                    <p class="card-text">
+                        Total Items: {{ cart_items.count }}
+                    </p>
+                    <p class="card-text">
+                        <strong>Total Price: ${{ total|floatformat:2 }}</strong>
+                    </p>
+                    <a href="{% url 'checkout' %}" class="btn btn-primary btn-lg btn-block">
+                        Proceed to Checkout
+                    </a> 
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-info" role="alert">
+            Your cart is empty. 
+            <a href="{% url 'user-order' %}" class="alert-link">Continue shopping</a>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

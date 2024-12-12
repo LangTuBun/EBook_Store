@@ -3,7 +3,7 @@ from django.contrib.auth.views import LoginView
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 # from .models import Profile
-from myapp.models import User, Customer 
+from myapp.models import User, Customer
 from django.db import connection
 from .forms import RegistrationForm, LoginForm
 from myapp.backends  import CustomRoleBackend
@@ -36,7 +36,7 @@ def register(request):
                 messages.success(request, "Account created successfully")
                 return redirect('login')  # Redirect to login page after successful registration
             else:
-                messages.error(request, "An error occurred during registration")
+                messages.error(request, "An error occurred during registration (Username may already exist)")
         else:
             messages.error(request, "Invalid form submission")
     else:
@@ -54,6 +54,11 @@ def login_view(request):
             
             if user is not None:
                 messages.success(request, "Login successful")
+                try:
+                    request.session['account_id'] = user.account_id
+                    request.session['user_name'] = user.user_name
+                except Exception as e:
+                    print(e)
                 if user.from_employee:
                     return redirect('employee-home')
                 else:
@@ -66,7 +71,13 @@ def login_view(request):
         form = LoginForm()
     return render(request, 'user/login.html', {'form': form})
 
-@login_required
+
 def profile(request):
-    return render(request, 'user/profile.html')
+    user_id = request.session.get('account_id')
+    if not user_id:
+        messages.error(request, 'Please log in to view your profile.')
+        return redirect('login')
+    user = User.objects.get(pk=user_id)
+    return render(request, 'user/profile.html', {'user': user})
+
 

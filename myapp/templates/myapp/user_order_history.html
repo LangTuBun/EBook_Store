@@ -1,0 +1,129 @@
+{% extends "myapp/user_home.html" %}
+{% load static %}
+{% block content %}
+<style>
+    .order-history-container {
+        margin-top: 40px;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .order-history-title {
+        text-align: center;
+        margin-bottom: 30px;
+        font-weight: bold;
+        font-size: 28px;
+        color: #343a40;
+    }
+
+    .table {
+        background-color: #ffffff;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .table th {
+        background-color: #343a40;
+        color: #fff;
+        text-align: center;
+    }
+
+    .table td {
+        vertical-align: middle;
+        text-align: center;
+    }
+
+    .btn-view-details {
+        background-color: #28a745;
+        color: #fff;
+        border: none;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-view-details:hover {
+        background-color: #218838;
+        color: #fff;
+    }
+
+    .no-orders {
+        text-align: center;
+        margin-top: 20px;
+        padding: 20px;
+        background-color: #e9ecef;
+        border-radius: 8px;
+        color: #495057;
+    }
+
+    .btn-return-home {
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    .btn-return-home a {
+        background-color: #007bff;
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 5px;
+        text-decoration: none;
+    }
+
+    .btn-return-home a:hover {
+        background-color: #0056b3;
+    }
+</style>
+
+<div class="order-history-container container">
+    <h2 class="order-history-title">Your Order History</h2>
+    {% if orders %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Order Date</th>
+                <th>Shipped Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>{{ order.order_id }}</td>
+                <td>{{ order.order_date|date:"F d, Y" }}</td>
+                <td>{{ order.shipped_date|date:"F d, Y" }}</td>
+                <td>
+                    {% if order.status == "Pending" %}
+                    <span class="badge bg-warning text-dark">Pending</span>
+                    {% elif order.status == "Shipped" %}
+                    <span class="badge bg-info text-dark">Shipped</span>
+                    {% elif order.status == "Delivered" %}
+                    <span class="badge bg-success">Delivered</span>
+                    {% else %}
+                    <span class="badge bg-secondary">Unknown</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'history-detail' order.order_id %}" class="btn btn-view-details btn-sm">
+                        <i class="fas fa-eye"></i> View Details
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="no-orders">
+        <i class="fas fa-info-circle fa-3x mb-3"></i>
+        <h4>No orders found in your history!</h4>
+        <p>Looks like you haven't placed any orders yet. Start shopping now!</p>
+    </div>
+    <div class="btn-return-home text-center">
+        <a href="{% url 'user-home' %}">
+            <i class="fas fa-shopping-cart"></i> Return to Shopping
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

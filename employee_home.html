@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee</title>
+    <link rel="stylesheet" href="/static/employee_home.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Inventory Management</h1>
+
+        <!-- Inventory Section -->
+        <div class="inventory-section">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Book Title</th>
+                        <th>Author</th>
+                        <th>Price</th>
+                        <th>Available</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{{ book.title }}</td>       <!-- Value from DB -->
+                        <td>{{ book.author }}</td>      <!-- Value from DB -->
+                        <td>${{ book.price }}</td>      <!-- Value from DB -->
+                        <td>{{ book.amount }}</td>       <!-- Value from DB -->
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Order More Books Section -->
+    <div class="order-form">
+        <h2>Order More Books</h2>
+        <form method="POST" action="{% url 'order_books' %}">
+            <div class="form-group">
+                <label for="book">Select Book:</label>
+                <select name="book" id="book" class="form-control">
+                    
+                        <option value="{{ book.id }}">{{ book.title }}</option>
+                   
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="quantity">Quantity:</label>
+                <input type="number" name="quantity" id="quantity" class="form-control" required min="1">
+            </div>
+            <button type="submit" class="btn">Order More</button>
+        </form>
+    </div>
+</body>
+</html>

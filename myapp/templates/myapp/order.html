@@ -1,33 +1,57 @@
 {% extends "myapp/base.html" %}
 {% block content %}
-{% for book in books %}
-<article class="media content-section" style="display: flex; align-items: flex-start; gap: 15px;">
-    <!-- Book Image Section -->
-    <div class="book-image">
-        {% if book.img_url %}
-            <img src="{{ book.img_url }}" alt="{{ book.title }} Cover" style="max-width: 150px; height: auto; border: 1px solid #ccc; border-radius: 5px;">
-        {% else %}
-            <p>No image available.</p>
-        {% endif %}
-    </div>
+<div class="container">
+    {% for book in books %}
+    <div class="card mb-4">
+        <div class="row g-0">
+            <!-- Book Image Section -->
+            <div class="col-md-4">
+                {% if book.img_url %}
+                    <img 
+                        src="{{ book.img_url }}" 
+                        alt="{{ book.title }} Cover" 
+                        class="img-fluid rounded-start" 
+                    >
+                {% else %}
+                    <div class="bg-light d-flex align-items-center justify-content-center h-100 p-3">
+                        <p class="text-muted m-0">No image available</p>
+                    </div>
+                {% endif %}
+            </div>
 
-    <!-- Book Details Section -->
-    <div class="media-body">
-        <div class="article-metadata">
-            <a class="mr-2" href="#">{{ book.author.name }}</a>
-            <small class="text-muted">{{ book.publishdate }}</small>
-        </div>
-        <h2><a class="article-title" href="{% url 'book-detail' book.book_id %}">{{ book.title }}</a></h2>
-        <div class="reviews">
-            <h3>Reviews:</h3>
-            {% for review in book.reviews_set.all %}
-                <p><strong>Rating:</strong> {{ review.rating }}</p>
-                <p>{{ review.comment }}</p>
-            {% empty %}
-                <p>No reviews yet.</p>
-            {% endfor %}
+            <!-- Book Details Section -->
+            <div class="col-md-8">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-2">
+                        <a href="#" class="text-decoration-none me-3">
+                            <span class="badge bg-primary">{{ book.author.name }}</span>
+                        </a>
+                        <small class="text-muted">{{ book.publishdate }}</small>
+                    </div>
+                    <h2 class="card-title mb-3">
+                        <a href="{% url 'book-detail' book.book_id %}" class="text-dark text-decoration-none">
+                            {{ book.title }}
+                        </a>
+                    </h2>
+                    <div class="reviews mb-3">
+                        <h5 class="mb-2">Reviews:</h5>
+                        {% for review in book.reviews_set.all %}
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="text-warning me-2">
+                                    {% for i in review.rating|make_list %}★{% endfor %}{% for i in "12345"|slice:"review.rating" %}☆{% endfor %}
+                                </div>
+                                <span class="text-muted">{{ review.rating }} Stars</span>
+                            </div>
+                            <p class="text-muted">{{ review.comment }}</p>
+                        {% empty %}
+                            <p class="text-muted font-italic">No reviews yet.</p>
+                        {% endfor %}
+                    </div>
+                    
+                </div>
+            </div>
         </div>
     </div>
-</article>
-{% endfor %}
+    {% endfor %}
+</div>
 {% endblock %}

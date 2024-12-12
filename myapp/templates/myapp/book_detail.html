@@ -1,27 +1,99 @@
 {% extends "myapp/base.html" %}
 {% block content %}
-<article class="media content-section">
-    <div class="media-body">
-        <div class="article-metadata">
-            <a class="mr-2" href="#">{{ object.author.name }}</a>
-            <small class="text-muted">{{ object.publishdate }}</small>
-        </div>
-        <h2><a class="article-title" href="#">{{ object.title }}</a></h2>
-        <!-- Display the book image -->
-        {% if object.img_url %}
-          <img src="{{ object.img_url }}" alt="{{ object.title }} Cover" style="max-width: 300px; height: auto; border: 1px solid #ccc;">
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Book Image Section -->
+                        <div class="col-md-4 mb-3 mb-md-0">
+                            {% if book.img_url %}
+                                <img 
+                                    src="{{ book.img_url }}" 
+                                    alt="{{ book.title }} Cover" 
+                                    class="img-fluid rounded shadow-sm" 
+                                    style="max-width: 100%; max-height: 800px; object-fit: contain; display: block; margin: 0 auto;"
+                                >
+                            {% else %}
+                                <div class="bg-light d-flex align-items-center justify-content-center rounded h-100 p-3 text-center">
+                                    <p class="text-muted m-0">No image available</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        
+                        
+                        <!-- Book Details Section -->
+                        <div class="col-md-8">
+                            <!-- Author and Publish Date -->
+                            <div class="d-flex align-items-center mb-3">
+                                <a href="#" class="text-decoration-none me-3">
+                                    <span class="badge bg-primary">{{ book.author.name }}</span>
+                                </a>
+                                <small class="text-muted">Published {{ book.publishdate }}</small>
+                            </div>
 
-        {% else %}
-            <p>No cover image available.</p>
-        {% endif %}
-        <div class="reviews">
-            <h3>Reviews:</h3>
-            {% for review in reviews %}
-                <p>{{ review.rating }} Stars</p>
-            {% empty %}
-                <p>No reviews yet.</p>
-            {% endfor %}
+                            <!-- Book Title -->
+                            <h2 class="card-title mb-3">
+                                <a href="{% url 'book-detail' book.book_id %}" class="text-dark text-decoration-none">
+                                    {{ book.title }}
+                                </a>
+                            </h2>
+
+                            <!-- Reviews Section -->
+                            <div class="mb-4">
+                                <h5 class="mb-3">Reviews:</h5>
+                                {% for review in book.reviews_set.all %}
+                                    <div class="card mb-2">
+                                        <div class="card-body py-2 px-3">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <div class="text-warning me-2">
+                                                    {% for i in review.rating|make_list %}★{% endfor %}{% for i in "12345"|slice:"review.rating" %}☆{% endfor %}
+                                                </div>
+                                                <small class="text-muted">{{ review.rating }} Stars</small>
+                                            </div>
+                                            <p class="card-text text-muted">{{ review.comment }}</p>
+                                        </div>
+                                    </div>
+                                {% empty %}
+                                    <div class="alert alert-secondary" role="alert">
+                                        No reviews yet.
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Categories Section -->
+                            <div class="mb-4">
+                                <h5 class="mb-3">Categories:</h5>
+                                <div class="d-flex flex-wrap gap-2">
+                                    {% for category in categories %}
+                                        <span class="badge bg-info">
+                                            {{ category.category_name }}
+                                        </span>
+                                    {% empty %}
+                                        <p class="text-muted">No categories assigned.</p>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <!-- Login Prompt Section -->
+                            {% if not user.is_authenticated %}
+                                <div class="alert alert-warning d-flex align-items-center justify-content-between" role="alert">
+                                    <div>
+                                        <h6 class="alert-heading mb-1">Want to read or buy this book?</h6>
+                                        <p class="mb-0">Please log in to access full details.</p>
+                                    </div>
+                                    <a href="{% url 'login' %}" class="btn btn-warning">
+                                        Login
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-</article>
+</div>
 {% endblock %}

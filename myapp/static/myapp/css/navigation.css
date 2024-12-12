@@ -1,0 +1,24 @@
+/* Base Styles */
+body {
+    background: #fafafa;
+    color: #333333;
+    margin-top: 5rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+    color: #444444;
+    font-weight: 500;
+}
+
+/* Utility Classes */
+.bg-steel {
+    background-color: #16a94e;
+}
+
+/* Reset */
+ul {
+    margin: 0;
+    padding: 0;
+}

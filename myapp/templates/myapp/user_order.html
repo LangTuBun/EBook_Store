@@ -1,0 +1,122 @@
+{% extends "myapp/user_home.html" %}
+
+{% block content %}
+    <style>
+        .zoom-image {
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+
+        .zoom-image:hover {
+            transform: scale(1.2);
+        }
+
+        .card {
+            background-color: #fff;
+        }
+
+        .card-body {
+            background-color: #fff;
+        }
+    </style>
+
+    <div class="container mb-4">
+        <!-- Sort Dropdown -->
+        <div class="mb-4 d-flex justify-content-end">
+            <div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" id="categoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    {% if selected_category %}
+                        Sorted by: {{ selected_category }}
+                    {% else %}
+                        Sort by Category
+                    {% endif %}
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="categoryDropdown">
+                    <li><a class="dropdown-item" href="{% url 'user-order' %}">All Categories</a></li>
+                    {% for category in categories %}
+                        <li>
+                            <a class="dropdown-item" href="{% url 'user-order' %}?category={{ category.category_id }}">
+                                {{ category.category_name }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+         <!-- Sort Dropdown -->
+         <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                {% if sort_option == "alphabet" %}
+                    Sort by: Alphabet (A-Z)
+                {% elif sort_option == "price_asc" %}
+                    Sort by: Price (Low to High)
+                {% elif sort_option == "price_desc" %}
+                    Sort by: Price (High to Low)
+                {% elif sort_option == "alphabetZ-A"%}
+                    Sort by: Alphabet (Z-A)
+                {% else %}
+                    Sort by
+                {% endif %}
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="sortDropdown">
+                <li><a class="dropdown-item" href="{% url 'user-order' %}?sort=alphabet">Alphabet(A-Z)</a></li>
+                <li><a class="dropdown-item" href="{% url 'user-order' %}?sort=alphabetZ-A">Alphabet(Z-A)</a></li>
+                <li><a class="dropdown-item" href="{% url 'user-order' %}?sort=price_asc">Price (Low to High)</a></li>
+                <li><a class="dropdown-item" href="{% url 'user-order' %}?sort=price_desc">Price (High to Low)</a></li>
+            </ul>
+        </div>
+    </div>
+
+        {% for book in books %}
+        <div class="card mb-4">
+            <div class="row g-0">
+                <!-- Book Image Section -->
+                <div class="col-md-4">
+                    {% if book.img_url %}
+                        <img 
+                            src="{{ book.img_url }}" 
+                            alt="{{ book.title }} Cover" 
+                            class="img-fluid rounded-start zoom-image"
+                        >
+                    {% else %}
+                        <div class="bg-light d-flex align-items-center justify-content-center h-100 p-3">
+                            <p class="text-muted m-0">No image available</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Book Details Section -->
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-2">
+                            <a href="#" class="text-decoration-none me-3">
+                                <span class="badge bg-primary">{{ book.author.name }}</span>
+                            </a>
+                            <small class="text-muted">{{ book.publishdate }}</small>
+                        </div>
+                        <h2 class="card-title mb-3">
+                            <a href="{% url 'user-book-detail' book.book_id %}" class="text-dark text-decoration-none">
+                                {{ book.title }}
+                            </a>
+                        </h2>
+                        <div class="reviews mb-3">
+                            <h5 class="mb-2">Reviews:</h5>
+                            {% for review in book.reviews_set.all %}
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="text-warning me-2">
+                                        {% for i in review.rating|make_list %}★{% endfor %}{% for i in "12345"|slice:"review.rating" %}☆{% endfor %}
+                                    </div>
+                                    <span class="text-muted">{{ review.rating }} Stars</span>
+                                </div>
+                                <p class="text-muted">{{ review.comment }}</p>
+                            {% empty %}
+                                <p class="text-muted font-italic">No reviews yet.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% endblock %}

@@ -1,0 +1,104 @@
+{% extends "myapp/user_home.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+    .zoom-image {
+        transition: transform 0.3s ease; /* Smooth transition */
+        cursor: pointer; /* Change cursor to a pointer when hovered */
+    }
+  
+    .zoom-image:hover {
+        transform: scale(1.2); /* Zoom in by 20% */
+    }
+  
+    /* Ensure the card and card body have black text */
+    .card, .card-body {
+        background-color: #fff; /* White background for the card */
+        color: #000; /* Set text color to black */
+    }
+  
+    /* Profile container text */
+    .cart-container .card-text,
+    .cart-container .card-title {
+        color: #000; /* Set the text color to black */
+    }
+  
+    /* Optional: Set color for the headings */
+    .card-title {
+        color: #000; /* Set card title color */
+    }
+  
+    .card-subtitle {
+        color: #555; /* Set subtitle color */
+    }
+  </style>
+<div class="order-confirmation container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h2 class="mb-0">
+                        <i class="fas fa-check-circle me-2"></i>Order Confirmation
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4>Order Details</h4>
+                            <p><strong>Order Number:</strong> {{ order.order_id }}</p>
+                            <p><strong>Order Date:</strong> {{ order.order_date|date:"F d, Y" }}</p>
+                            <p><strong>Expected Shipping Date:</strong> {{ order.shipped_date|date:"F d, Y" }}</p>
+                            <p><strong>Status:</strong> {{ order.status }}</p>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <h4>Order Items</h4>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Book Title</th>
+                                <th>Quantity</th>
+                                <th>Price per Book</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for detail in order_details %}
+                            <tr>
+                                <td>{{ detail.book.title }}</td>
+                                <td>{{ detail.quantity }}</td>
+                                <td>${{ detail.price_each|floatformat:2 }}</td>
+                                <td>${{ detail.get_total_price|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" class="text-end"><strong>Total Price:</strong></td>
+                                <td><strong>${{ total_price|floatformat:2 }}</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+                    <div class="alert alert-info mt-4" role="alert">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Thank you for your purchase! Your order has been confirmed and will be processed shortly.
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <a href="{% url 'user-home' %}" class="btn btn-primary me-2">
+                            <i class="fas fa-home me-1"></i>Continue Shopping
+                        </a>
+                        <a href="{% url 'user-order-history' %}" class="btn btn-secondary">
+                            <i class="fas fa-list me-1"></i>View Order History
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,31 +1,72 @@
 {% extends 'myapp/base.html' %}
-
-{% block title %}Home{% endblock %}
+{% load static %}
 
 {% block content %}
-<div class="jumbotron">
-    <h1 class="display-4">Welcome to E-BookStore!</h1>
-    <p class="lead">This is a simple hero unit, a simple jumbotron-style component for calling extra attention to featured content or information.</p>
-    <hr class="my-4">
-    <p>It uses utility classes for typography and spacing to space content out within the larger container.</p>
-    <a class="btn btn-primary btn-lg" href="#" role="button">Learn more</a>
-</div>
+<div class="container">
+    <!-- Hero Section -->
+    <div class="row mb-5 align-items-center">
+        <div class="col-md-6">
+            <h1 class="display-4 fw-bold text-dark mb-4">Discover Your Next <span class="text-primary">Great Read</span></h1>
+            <p class="lead text-muted mb-4">Explore thousands of books across multiple genres. Your literary journey starts here.</p>
+            
+            <!-- Search Bar -->
+        </div>
+        <div class="col-md-6">
+            <img src="{% static 'myapp/ebook.png' %}" alt="Book Reading Illustration" class="img-fluid rounded-4 shadow-lg">
+        </div>
+    </div>
 
-<div class="row">
-    <div class="col-md-4">
-        <h2>Section 1</h2>
-        <p>Some representative placeholder content for the first section.</p>
-        <a class="btn btn-secondary" href="#" role="button">View details »</a>
+    <!-- Featured Books Section -->
+    <div class="mb-5">
+        <h2 class="mb-4 text-center">Featured Books</h2>
+        <div class="row row-cols-1 row-cols-md-4 g-4">
+            {% for book in books %}
+                <div class="col">
+                    <div class="card h-100 book-card">
+                        <img src="{{ book.img_url }}" class="card-img-top" alt="{{ book.title }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ book.title }}</h5>
+                            <p class="card-text text-muted">{{ book.author.name }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="h5 text-primary mb-0">${{ book.price|floatformat:2 }}</span>
+                                <a href="{% url 'book-detail' book.book_id %}" class="btn btn-outline-primary btn-sm">
+                                    View Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12">
+                    <div class="alert alert-info text-center">
+                        No featured books available at the moment.
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
     </div>
-    <div class="col-md-4">
-        <h2>Section 2</h2>
-        <p>Some representative placeholder content for the second section.</p>
-        <a class="btn btn-secondary" href="#" role="button">View details »</a>
-    </div>
-    <div class="col-md-4">
-        <h2>Section 3</h2>
-        <p>Some representative placeholder content for the third section.</p>
-        <a class="btn btn-secondary" href="#" role="button">View details »</a>
-    </div>
+
+
+
 </div>
 {% endblock %}
+
+<style>
+.book-card {
+    transition: transform 0.3s ease;
+}
+
+.book-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.genre-card {
+    transition: all 0.3s ease;
+}
+
+.genre-card:hover {
+    background-color: #f8f9fa !important;
+    transform: translateY(-5px);
+}
+</style>

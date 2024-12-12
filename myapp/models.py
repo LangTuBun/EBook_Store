@@ -18,6 +18,9 @@ class Author(models.Model):
     class Meta:
         managed = False
         db_table = 'author'
+        
+    def __str__(self):
+        return self.name
 
 
 class Book(models.Model):
@@ -30,7 +33,7 @@ class Book(models.Model):
     author = models.ForeignKey(Author, models.DO_NOTHING, db_column='Author_ID', blank=True, null=True)  # Field name made lowercase.
     category_id = models.CharField(db_column='Category_id', max_length=20, blank=True, null=True)  # Field name made lowercase.
     amount = models.IntegerField(db_column='Amount', blank=True, null=True)  # Field name made lowercase.
-    publishdate = models.DateTimeField(db_column='PublishDate', blank=True, null=True)  # Field name made lowercase.
+    publishdate = models.DateField(db_column='PublishDate', blank=True, null=True)  # Field name made lowercase.
     img_url = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
@@ -109,6 +112,9 @@ class OrderDetail(models.Model):
     class Meta:
         managed = False
         db_table = 'order_detail'
+        
+    def get_total_price(self):
+        return self.price_each * self.quantity  
 
 
 class Orders(models.Model):
@@ -119,6 +125,7 @@ class Orders(models.Model):
     shipped_date = models.DateField(db_column='Shipped_Date', blank=True, null=True)  # Field name made lowercase.
     status = models.CharField(db_column='Status', max_length=20, blank=True, null=True)  # Field name made lowercase.
     from_employee = models.IntegerField(db_column='From_employee', blank=True, null=True)  # Field name made lowercase.
+    
 
     class Meta:
         managed = False
@@ -182,7 +189,19 @@ class User(models.Model):
     def with_roles(cls, account_id, is_customer, is_employee):
         user = cls.objects.get(account_id=account_id)
         return user
-
+class CartItem(models.Model):
+    id = models.AutoField(db_column= 'id',primary_key=True)
+    user_id = models.ForeignKey('User',db_column= 'user_id', to_field='account_id', on_delete=models.CASCADE)
+    book_id = models.ForeignKey(Book, db_column='book_id',on_delete=models.CASCADE)
+    quantity = models.IntegerField(db_column='quantity',default=1)
+    added_date = models.DateTimeField(auto_now_add=True, db_column='added_date')
+    class Meta:
+        managed = True
+        db_table = 'cartitem'
+    def __str__(self):
+        return f"{self.book_id.title} - {self.quantity} item(s)"
+    def get_total_price(self):
+        return self.book_id.price * self.quantity
 
 class UserProfile(models.Model):
     id = models.BigAutoField(primary_key=True)

@@ -1,0 +1,16 @@
+/* Profile Styles */
+.account-img {
+    height: 125px;
+    width: 125px;
+    margin-right: 20px;
+    margin-bottom: 16px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #16a94e;
+}
+
+.account-heading {
+    font-size: 2.5rem;
+    color: #444444;
+    font-weight: 600;
+}
