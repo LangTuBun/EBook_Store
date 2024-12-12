@@ -1,0 +1,118 @@
+{% extends 'myapp/base_employee.html' %}
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex align-items-center mb-4">
+        <h1 class="mb-0">Order History</h1>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="fas fa-search"></i>
+                </span>
+                <input type="text" class="form-control" id="search-input" placeholder="Search orders">
+            </div>
+        </div>
+        <div class="col-md-6 text-end">
+            <div class="dropdown">
+                <button class="btn btn-outline-primary dropdown-toggle" type="button" id="filter-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    Filter
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="filter-dropdown">
+                    <li><a class="dropdown-item" href="#" data-filter="all">All Orders</a></li>
+                    <li><a class="dropdown-item" href="#" data-filter="completed">Completed</a></li>
+                    <li><a class="dropdown-item" href="#" data-filter="pending">Pending</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Orders Table -->
+    <div class="table-responsive">
+        <table class="table table-hover align-middle" id="orders-table">
+            <thead class="table-light">
+                <tr>
+                    <th>Order ID</th>
+                    <th>Order Date</th>
+                    <th>Status</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr data-status="{{ order.status|lower }}">
+                    <td>{{ order.order_id }}</td>
+                    <td>{{ order.order_date|date:"M d, Y" }}</td>
+                    <td>
+                        {% if order.status == 'Completed' %}
+                            <span class="badge bg-success">{{ order.status }}</span>
+                        {% elif order.status == 'Pending' %}
+                            <span class="badge bg-warning text-dark">{{ order.status }}</span>
+                        {% else %}
+                            <span class="badge bg-success">{{ order.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        <a href="{%url 'history-detail-employee' order.order_id%}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-eye me-1"></i>View Details
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center">
+                        <div class="alert alert-info">
+                            No orders found.
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Search functionality
+    const searchInput = document.getElementById('search-input');
+    const tableRows = document.querySelectorAll('#orders-table tbody tr');
+
+    searchInput.addEventListener('input', function () {
+        const searchTerm = this.value.toLowerCase();
+        tableRows.forEach(function (row) {
+            // Search across multiple columns
+            const orderId = row.querySelector('td:first-child').textContent.toLowerCase();
+            const customerName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+            
+            row.style.display = (
+                orderId.includes(searchTerm) || 
+                customerName.includes(searchTerm)
+            ) ? '' : 'none';
+        });
+    });
+
+    // Filter functionality
+    const filterLinks = document.querySelectorAll('#filter-dropdown a');
+
+    filterLinks.forEach(function (link) {
+        link.addEventListener('click', function (event) {
+            event.preventDefault();
+            const filterBy = this.dataset.filter;
+
+            tableRows.forEach(function (row) {
+                if (filterBy === 'all') {
+                    row.style.display = '';
+                } else {
+                    const status = row.dataset.status;
+                    row.style.display = (status === filterBy) ? '' : 'none';
+                }
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

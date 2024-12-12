@@ -1,10 +1,11 @@
 from django.shortcuts import render, redirect,get_object_or_404
 from django.http import HttpResponse
-from .models import Book, Reviews, CartItem, Customer, User, Category, Orders, OrderDetail
+from .models import Book, Reviews, CartItem, Customer, User, Category, Orders, OrderDetail, Employee
 from django.views.generic import ListView, DetailView
 from django.db.models import Prefetch, Max
 from django.contrib import messages
 from datetime import datetime, timedelta    
+from django.db import Error
 # Create your views here.
 
 def home(request):
@@ -259,13 +260,7 @@ def checkout(request):
             quantity=cart_item.quantity,
             price_each=cart_item.book_id.price
         )
-        book = Book.objects.get(pk=cart_item.book_id.book_id)
-        if book.amount >= cart_item.quantity:
-            book.amount -= cart_item.quantity  # Decrease the amount left
-            book.save()  # Save the changes to the database
-        else:
-        # Handle the case where there's not enough stock
-            raise ValueError(f"Not enough stock for book '{book.title}'. Available: {book.amount}, Requested: {cart_item.quantity}")
+
         
 
     # Clear the cart after the order is placed
@@ -303,10 +298,120 @@ def history_detail(request, pk):
     })
     
 def dashboard(request):
-    pass
-
-def inventory(request):
-    pass
+    low_stock = Book.objects.filter(amount__lte=25)   
+    pending_orders = Orders.objects.filter(status='Pending')    
+    return render(request, 'myapp/employee_dashboard.html', {
+        'lowstock': low_stock,
+        'pending_orders': pending_orders
+    })
+    
 
 def employee_orders(request):
     pass
+
+def employee_process_orders(request,pk):
+    order = Orders.objects.get(order_id=pk)
+    order_details = OrderDetail.objects.filter(order_id=order)
+    total_price = sum(detail.get_total_price() for detail in order_details)
+    if request.method == 'POST':
+        for detail in order_details:
+            book = Book.objects.get(book_id=detail.book.book_id)
+            if book.amount < detail.quantity:
+                messages.error(request, f'Not enough stock for {book.title}.')
+                return redirect('employee-order-processing', pk=pk)
+            book.amount -= detail.quantity
+            book.save()
+        order.status = 'Shipped'
+        order.save()
+        return redirect('employee-dashboard')
+    return render(request, 'myapp/employee_process_order.html', {
+        'order': order,
+        'order_details': order_details,
+        'total_price': total_price
+    })
+    
+def restock_books(request, pk):
+    book = Book.objects.get(pk=pk)
+    if request.method == 'POST':
+        try:
+            amount = int(request.POST.get('amount', 0))
+            if amount < 1:
+                raise ValueError
+        except ValueError:
+            messages.error(request, 'Invalid amount value.')
+            return redirect('employee-dashboard')
+        book.amount += amount
+        book.save()
+        messages.success(request, f'{book.title} Restock request sent to publisher successfully.')
+        employee_id_ = request.session.get('account_id')
+        employee_id_real = Employee.objects.get(account_id=employee_id_).employee_id
+        new_order_detail_id = generate_new_order_detail_id()
+        order = Orders.objects.create(
+            order_id=generate_new_order_id(),
+            employee_id=employee_id_real,  # Assuming 1 is the publisher's customer_id
+            order_date=datetime.now(),
+            shipped_date=datetime.now() + timedelta(days=7),
+            from_employee=1,  # Assuming 1 means an employee order
+            status='Shipped'
+        )
+        OrderDetail.objects.create(
+            order_detail_id=new_order_detail_id,
+            order_id=order.order_id,
+            book_id=book.book_id,
+            quantity=amount,
+            price_each=book.price
+        )
+        return redirect('employee-dashboard')
+    return render(request, 'myapp/restock_book.html', {'book': book})
+    
+
+def inventory(request):
+    sort_by = request.GET.get('sort', 'title')
+    order = request.GET.get('order', 'asc')
+    
+    if sort_by == 'title':
+        books = Book.objects.all().order_by('title' if order == 'asc' else '-title')
+    elif sort_by == 'amount':
+        books = Book.objects.all().order_by('amount' if order == 'asc' else '-amount')
+    else:
+        books = Book.objects.all().order_by('title')
+    
+    return render(request, 'myapp/inventory_management.html', {'books': books})
+
+def update_book(request,pk):
+    book = Book.objects.get(pk=pk)
+    if request.method == 'POST':
+        price = request.POST.get('price')
+        amount = request.POST.get('amount')
+        publishdate = request.POST.get('publishdate')
+        book.price = price
+        book.amount = amount
+        book.publishdate = publishdate
+        book.save()
+        messages.success(request, 'Book updated successfully.')
+        return redirect('inventory-management')
+    return render(request, 'myapp/update_book.html', {'book': book}) 
+
+def delete_book(request, pk):
+    book = Book.objects.get(pk=pk)
+    book.delete()
+    messages.success(request, 'Book deleted successfully.')
+    return redirect('inventory-management')
+
+def order_history_employee(request):
+    user_id = request.session.get('account_id')
+    user = User.objects.get(pk=user_id)
+    employee_id_real = Employee.objects.get(account_id=user).employee_id
+    orders = Orders.objects.filter(employee_id=employee_id_real)
+    return render(request, 'myapp/employee_order_history.html', {'orders': orders})
+
+
+def history_detail_employee(request, pk):
+    order = Orders.objects.get(order_id=pk)
+    order_details = OrderDetail.objects.filter(order_id=order)
+    total_price = sum(detail.get_total_price() for detail in order_details) 
+    return render(request, 'myapp/employee_history_order_detail.html', {
+        'order': order,
+        'order_details': order_details,
+        'total_price': total_price
+    })

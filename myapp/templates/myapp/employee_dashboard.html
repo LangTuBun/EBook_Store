@@ -1,0 +1,97 @@
+{% extends 'myapp/base_employee.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="mb-4">Employee Dashboard</h1>
+    
+    <div class="row g-4">
+        <!-- Low Stock Books Section -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-warning text-white">
+                    <h2 class="card-title mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Low Stock Books
+                    </h2>
+                </div>
+                <div class="card-body">
+                    {% if lowstock %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Book Title</th>
+                                        <th class="text-center">Current Stock</th>
+                                        <th class="text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for book in lowstock %}
+                                    <tr>
+                                        <td>{{ book.title }}</td>
+                                        <td class="text-center text-danger fw-bold">{{ book.amount }}</td>
+                                        <td class="text-center">
+                                            <a href="{% url 'restock-book' book.book_id %}" 
+                                               class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-plus-circle me-1"></i>Restock
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info" role="alert">
+                            <i class="fas fa-info-circle me-2"></i>No books with low stock.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pending Orders Section -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="card-title mb-0">
+                        <i class="fas fa-shopping-cart me-2"></i>Pending Orders
+                    </h2>
+                </div>
+                <div class="card-body">
+                    {% if pending_orders %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Customer</th>
+                                        <th class="text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order in pending_orders %}
+                                    <tr>
+                                        <td>{{ order.order_id }}</td>
+                                        <td>{{ order.customer_id }}</td>
+                                        <td class="text-center">
+                                            <a href="{%url 'process-orders' order.order_id%}" 
+                                                class="btn btn-sm btn-outline-warning">
+                                                <i class="fas fa-hourglass-start me-1"></i>Pending
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info" role="alert">
+                            <i class="fas fa-info-circle me-2"></i>No pending orders.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

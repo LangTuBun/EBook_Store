@@ -1,0 +1,85 @@
+{% extends 'myapp/base_employee.html' %}
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header with an Image -->
+    <div class="d-flex align-items-center mb-4">
+        <h1 class="mb-0">Inventory Management</h1>
+    </div>
+<!-- Search and Sort -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="input-group">
+        <span class="input-group-text">
+            <i class="fas fa-search"></i>
+        </span>
+        <input type="text" class="form-control" id="search-input" placeholder="Search by book title">
+    </div>
+    <div class="dropdown">
+        <button class="btn btn-outline-primary dropdown-toggle" type="button" id="sort-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            Sort by
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="sort-dropdown">
+            <li><a class="dropdown-item" href="{% url 'inventory-management' %}?sort=title&order=asc">Title (A-Z)</a></li>
+            <li><a class="dropdown-item" href="{% url 'inventory-management' %}?sort=title&order=desc">Title (Z-A)</a></li>
+            <li><a class="dropdown-item" href="{% url 'inventory-management' %}?sort=amount&order=asc">Amount (Low to High)</a></li>
+            <li><a class="dropdown-item" href="{% url 'inventory-management' %}?sort=amount&order=desc">Amount (High to Low)</a></li>
+        </ul>
+    </div>
+</div>
+
+<!-- Table Section -->
+<div class="table-responsive">
+    <table class="table table-hover align-middle" id="inventory-table">
+        <thead class="table-light">
+            <tr>
+                <th>Book Title</th>
+                <th>Author</th>
+                <th class="text-center">Current Stock</th>
+                <th class="text-center">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for book in books %}
+            <tr>
+                <td>
+                    <div class="d-flex align-items-center">
+                        <img src="{{ book.img_url }}" alt="{{ book.title }}" class="me-3 rounded" style="width: 50px; height: 50px; object-fit: cover;">
+                        <span>{{ book.title }}</span>
+                    </div>
+                </td>
+                <td>{{ book.author }}</td>
+                <td class="text-center {% if book.amount <= 25 %}text-danger fw-bold{% else %}text-success{% endif %}">
+                    {{ book.amount }}
+                </td>
+                <td class="text-center">
+                    <a href="{% url 'restock-book' book.book_id %}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-plus-circle me-1"></i>Restock
+                    </a>
+                    <a href="{% url 'update-book' book.book_id %}" class="btn btn-sm btn-outline-warning">
+                        <i class="fas fa-edit me-1"></i>Update
+                    </a>
+                    <a href="{% url 'delete-book' book.book_id %}" class="btn btn-sm btn-outline-danger">
+                        <i class="fas fa-trash-alt me-1"></i>Delete
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Search functionality
+        const searchInput = document.getElementById('search-input');
+        const tableRows = document.querySelectorAll('#inventory-table tbody tr');
+    
+        searchInput.addEventListener('input', function () {
+            const searchTerm = this.value.toLowerCase();
+            tableRows.forEach(function (row) {
+                const title = row.querySelector('td:first-child span').textContent.toLowerCase();
+                row.style.display = title.includes(searchTerm) ? '' : 'none';
+            });
+        });
+    });
+</script>
+{% endblock %}

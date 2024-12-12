@@ -42,7 +42,7 @@ class Book(models.Model):
 
 
 class BookCoupon(models.Model):
-    book = models.ForeignKey(Book, models.DO_NOTHING)
+    book = models.ForeignKey(Book,on_delete=models.CASCADE)  # Field name made lowercase.
     coupon_code = models.CharField(primary_key=True, max_length=20)
 
     class Meta:
@@ -158,7 +158,7 @@ class Publisher(models.Model):
 
 class Reviews(models.Model):
     review_id = models.IntegerField(db_column='Review_id', primary_key=True)  # Field name made lowercase.
-    book = models.ForeignKey(Book, models.DO_NOTHING, db_column='Book_id', blank=True, null=True)  # Field name made lowercase.
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, db_column='Book_id', blank=True, null=True)  # Field name made lowercase.
     rating = models.FloatField(db_column='Rating', blank=True, null=True)  # Field name made lowercase.
 
     class Meta:

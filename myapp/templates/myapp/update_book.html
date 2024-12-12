@@ -1,0 +1,72 @@
+{% extends 'myapp/base_employee.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-white">
+                    <h2 class="card-title mb-0">
+                        <i class="fas fa-edit me-2"></i>Update Book
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Title</label>
+                            <input type="text" class="form-control" id="title" name="title" value="{{ book.title }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="author" class="form-label">Author</label>
+                            <input type="text" class="form-control" id="author" name="author" value="{{ book.author }}" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="price" class="form-label">Price</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="price" name="price" value="{{ book.price|floatformat:2 }}" min="0" step="0.01" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="amount" class="form-label">Stock Amount</label>
+                            <input type="number" class="form-control" id="amount" name="amount" value="{{ book.amount }}" min="0" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="publishdate" class="form-label">Publication Date</label>
+                            <input type="date" class="form-control" id="publishdate" name="publishdate" value="{{ book.publishdate|date:'Y-m-d' }}" required>
+                        </div>
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    <div class="alert-icon">
+                                        {% if message.tags == 'success' %}
+                                            <i class="fas fa-check-circle"></i>
+                                        {% elif message.tags == 'warning' %}
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                        {% elif message.tags == 'error' %}
+                                            <i class="fas fa-times-circle"></i>
+                                        {% elif message.tags == 'info' %}
+                                            <i class="fas fa-info-circle"></i>
+                                        {% endif %}
+                                    </div>
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'inventory-management' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-1"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-save me-1"></i>Update Book
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
