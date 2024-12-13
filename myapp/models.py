@@ -30,7 +30,7 @@ class Book(models.Model):
     language = models.CharField(db_column='Language', max_length=50, blank=True, null=True)  # Field name made lowercase.
     availability_status = models.CharField(db_column='Availability_Status', max_length=20, blank=True, null=True)  # Field name made lowercase.
     publisher = models.ForeignKey('Publisher', models.DO_NOTHING, db_column='Publisher_id', blank=True, null=True)  # Field name made lowercase.
-    author = models.ForeignKey(Author, models.DO_NOTHING, db_column='Author_ID', blank=True, null=True)  # Field name made lowercase.
+    author = models.ForeignKey(Author,on_delete=models.CASCADE, db_column='Author_ID', blank=True, null=True)  # Field name made lowercase.
     category_id = models.CharField(db_column='Category_id', max_length=20, blank=True, null=True)  # Field name made lowercase.
     amount = models.IntegerField(db_column='Amount', blank=True, null=True)  # Field name made lowercase.
     publishdate = models.DateField(db_column='PublishDate', blank=True, null=True)  # Field name made lowercase.
@@ -112,6 +112,9 @@ class OrderDetail(models.Model):
     class Meta:
         managed = False
         db_table = 'order_detail'
+        indexes = [
+            models.Index(fields=['book', 'quantity']),
+        ]
         
     def get_total_price(self):
         return self.price_each * self.quantity  
@@ -119,8 +122,8 @@ class OrderDetail(models.Model):
 
 class Orders(models.Model):
     order_id = models.IntegerField(db_column='Order_id', primary_key=True)  # Field name made lowercase.
-    customer = models.ForeignKey(Customer, models.DO_NOTHING, db_column='Customer_id', blank=True, null=True)  # Field name made lowercase.
-    employee = models.ForeignKey(Employee, models.DO_NOTHING, db_column='Employee_id', blank=True, null=True)  # Field name made lowercase.
+    customer = models.ForeignKey(Customer, on_delete= models.CASCADE, db_column='Customer_id', blank=True, null=True)  # Field name made lowercase.
+    employee = models.ForeignKey(Employee, on_delete= models.CASCADE, db_column='Employee_id', blank=True, null=True)  # Field name made lowercase.
     order_date = models.DateField(db_column='Order_date', blank=True, null=True)  # Field name made lowercase.
     shipped_date = models.DateField(db_column='Shipped_Date', blank=True, null=True)  # Field name made lowercase.
     status = models.CharField(db_column='Status', max_length=20, blank=True, null=True)  # Field name made lowercase.
@@ -130,6 +133,9 @@ class Orders(models.Model):
     class Meta:
         managed = False
         db_table = 'orders'
+        indexes = [
+            models.Index(fields=['status', 'order_date']),
+        ]
 
 
 class Payments(models.Model):
@@ -211,3 +217,21 @@ class UserProfile(models.Model):
     class Meta:
         managed = False
         db_table = 'user_profile'
+        
+class Orders2(models.Model):
+    order_id = models.IntegerField(db_column='Order_id', primary_key=True)  # Field name made lowercase.
+    customer = models.ForeignKey(Customer, models.DO_NOTHING, db_column='Customer_id', blank=True, null=True)  # Field name made lowercase.
+    employee = models.ForeignKey(Employee, models.DO_NOTHING, db_column='Employee_id', blank=True, null=True)  # Field name made lowercase.
+    order_date = models.DateField(db_column='Order_date', blank=True, null=True)  # Field name made lowercase.
+    shipped_date = models.DateField(db_column='Shipped_Date', blank=True, null=True)  # Field name made lowercase.
+    status = models.CharField(db_column='Status', max_length=20, blank=True, null=True)  # Field name made lowercase.
+    from_employee = models.IntegerField(db_column='From_employee', blank=True, null=True)  # Field name made lowercase.
+    
+
+    class Meta:
+        managed = False
+        db_table = 'orders2'
+        indexes = [
+            models.Index(fields=['status', 'order_date']),
+        ]
+
