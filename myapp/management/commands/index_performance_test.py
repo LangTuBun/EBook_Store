@@ -57,17 +57,17 @@ class Command(BaseCommand):
                 SELECT COUNT(1)
                 FROM INFORMATION_SCHEMA.STATISTICS
                 WHERE TABLE_SCHEMA = DATABASE()
-                AND TABLE_NAME = 'orders'
+                AND TABLE_NAME = 'orders2'
                 AND INDEX_NAME = 'idx_orders_status_order_date'
             """)
             index_exists = cursor.fetchone()[0] > 0
 
             # Drop the index if it exists
             if index_exists:
-                cursor.execute("DROP INDEX idx_orders_status_order_date ON orders")
+                cursor.execute("DROP INDEX idx_orders_status_order_date ON orders2")
 
             # Create the index
-            cursor.execute("CREATE INDEX idx_orders_status_order_date ON orders (status, order_date)")
+            cursor.execute("CREATE INDEX idx_orders_status_order_date ON orders2 (status, order_date)")
 
 
 # Run the management command
