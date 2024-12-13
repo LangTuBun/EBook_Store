@@ -1,0 +1,37 @@
+{% extends 'myapp/base_employee.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="mb-4">Restock Books</h1>
+
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Book Title</th>
+                    <th>Author</th>
+                    <th class="text-center">Current Stock</th>
+                    <th class="text-center">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for book in books %}
+                <tr>
+                    <td>{{ book.title }}</td>
+                    <td>{{ book.author }}</td>
+                    <td class="text-center 
+                        {% if book.amount <= 25 %}text-danger fw-bold{% else %}text-success{% endif %}">
+                        {{ book.amount }}
+                    </td>
+                    <td class="text-center">
+                        <a href="{% url 'restock-book' book.book_id %}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-plus-circle me-1"></i>Restock
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
